@@ -75,15 +75,34 @@ A purchase order enters the Received status after the goods have been received a
 
 ## 4. Allowed State Transitions
 
-| Current Status | Action | Conditions | Result |
-|---|---|---|---|
-| Draft | Submit | At least one valid order line exists | Status becomes Submitted |
-| Submitted | Receive | The order is valid and has not already been received | Inventory is updated and status becomes Received |
-| Draft | Receive | Not allowed | Request is rejected |
-| Submitted | Submit again | Not allowed | Request is rejected |
-| Received | Receive again | Not allowed | Request is rejected |
-| Submitted | Edit | Not allowed in the MVP | Request is rejected |
-| Received | Edit | Not allowed in the MVP | Request is rejected |
+### Draft → Submit
+- **Condition:** The order contains at least one valid order item.
+- **Result:** The order status changes to `Submitted`.
+
+### Submitted → Receive
+- **Condition:** The order is valid and has not already been received.
+- **Result:** Inventory quantities are updated, stock movements are recorded, and the order status changes to `Received`.
+
+### Draft → Receive
+- **Allowed:** No.
+- **Result:** The request is rejected because the order must be submitted before it can be received.
+
+### Submitted → Submit Again
+- **Allowed:** No.
+- **Result:** The request is rejected because the order has already been submitted.
+
+### Received → Receive Again
+- **Allowed:** No.
+- **Result:** The request is rejected because the order has already been received.
+
+### Submitted → Edit
+- **Allowed:** No, not in the current MVP.
+- **Result:** The request is rejected because submitted orders are locked from editing.
+
+### Received → Edit
+- **Allowed:** No, not in the current MVP.
+- **Result:** The request is rejected because received orders cannot be edited through the normal workflow.
+
 
 ## 5. Submitting a Purchase Order
 
