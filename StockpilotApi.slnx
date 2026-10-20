@@ -1,1 +1,10 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="Stockpilot.Api/Stockpilot.Api.csproj" />
+    <Project Path="Stockpilot.Application/Stockpilot.Application.csproj" />
+    <Project Path="Stockpilot.Domain/Stockpilot.Domain.csproj" />
+    <Project Path="Stockpilot.Identity/Stockpilot.Identity.csproj" />
+    <Project Path="Stockpilot.Persistence/Stockpilot.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>
