@@ -15,14 +15,19 @@ public static class AddIdentityServiceRegistration
 {
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
+
+
         services.AddDbContext<StockpilotIdentityDbContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("IdentityConnection")));
 
-        services.AddIdentity<ApplicationUser, IdentityRole>()
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                .AddEntityFrameworkStores<StockpilotIdentityDbContext>()
                .AddDefaultTokenProviders();
 
 
         services.AddScoped<IPasswordHasher<ApplicationUser>, PasswordHasher<ApplicationUser>>();
+
+        services.AddScoped<AuthenticationService>();
+
 
         services.AddAuthentication(options =>
         {
@@ -69,6 +74,7 @@ public static class AddIdentityServiceRegistration
         });
 
         services.AddAuthorization();
+
         return services;
     }
 }

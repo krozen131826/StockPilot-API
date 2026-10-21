@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <File Path="database-desig.md" />
+    <File Path="purchase-order-workflow.md" />
     <Project Path="Stockpilot.Api/Stockpilot.Api.csproj" />
     <Project Path="Stockpilot.Application/Stockpilot.Application.csproj" />
     <Project Path="Stockpilot.Domain/Stockpilot.Domain.csproj" />

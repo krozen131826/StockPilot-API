@@ -94,6 +94,9 @@ A purchase order enters the Received status after the goods have been received a
 ### Received → Receive Again
 - **Allowed:** No.
 - **Result:** The request is rejected because the order has already been received.
+- **Result:** The request is rejected because the order has already been received.
+- **Result:** The request is rejected because the order has already been received.
+- **Result:** The request is rejected because the order has already been received.
 
 ### Submitted → Edit
 - **Allowed:** No, not in the current MVP.
