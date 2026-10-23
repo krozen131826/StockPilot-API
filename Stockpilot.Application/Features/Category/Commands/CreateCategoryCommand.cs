@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using Stockpilot.Application.Contracts;
+using Stockpilot.Application.Exceptions;
 using Stockpilot.Application.Features.Category.Dtos;
 
 namespace Stockpilot.Application.Features.Category.Commands;
@@ -32,11 +33,24 @@ internal sealed class CategoryCommandHandler : IRequestHandler<CategoryCommand, 
     }
     public async Task<Guid> Handle(CategoryCommand request, CancellationToken cancellationToken)
     {
-        // Check if the category name already exists
-        if (await _categoryRepository.ExistsByNameAsync(request.request.Name, cancellationToken))
+
+        var validator = new CategoryCommandValidator();
+
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (validationResult.Errors.Count() > 0)
         {
-            throw new InvalidOperationException($"A category with the name '{request.request.Name}' already exists.");
+            throw new ValidationExceptions(validationResult);
         }
+
+        // Check if the category name already exists
+        var existingCategory = await _categoryRepository.ExistsByNameAsync(request.request.Name, cancellationToken);
+
+        if (existingCategory)
+        {
+            throw new BadRequestExceptions("A category with the specified name already exists.");
+        }
+
         // Create a new category entity
         var category = new Domain.Entities.Category
         {
@@ -47,7 +61,7 @@ internal sealed class CategoryCommandHandler : IRequestHandler<CategoryCommand, 
         };
 
         // Add the new category to the repository
-        await _categoryRepository.AddAsync(category, cancellationToken);
+        _categoryRepository.AddCategory(category, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

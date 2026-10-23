@@ -23,12 +23,23 @@ public class CategoryRepository : ICategoryRepository
                 cancellationToken);
     }
 
-    public async Task AddAsync(
+    public void AddCategory(
         Category category,
         CancellationToken cancellationToken = default)
     {
-        await _context.Categories.AddAsync(
+         _context.Categories.AddAsync(
             category,
             cancellationToken);
+    }
+
+    public async Task<Category?> GetCategoryByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories
+            .FindAsync(id,cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Category>> GetCategoryListAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories.ToListAsync(cancellationToken);
     }
 }

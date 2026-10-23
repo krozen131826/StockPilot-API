@@ -17,12 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Category\Queries\" />
-    <Folder Include="Features\Supplier\" />
     <Folder Include="Features\StockMovement\" />
     <Folder Include="Features\PurchaseOrderItem\" />
     <Folder Include="Features\PurchaseOrder\" />
     <Folder Include="Features\Product\" />
+    <Folder Include="Features\Supplier\Queries\" />
   </ItemGroup>
 
 </Project>

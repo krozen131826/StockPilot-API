@@ -11,7 +11,15 @@ public interface ICategoryRepository
         string name,
         CancellationToken cancellationToken = default);
 
-    Task AddAsync(
+    void AddCategory(
         Category category,
+        CancellationToken cancellationToken = default);
+
+
+    Task<Category?> GetCategoryByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Category>> GetCategoryListAsync(
         CancellationToken cancellationToken = default);
 }

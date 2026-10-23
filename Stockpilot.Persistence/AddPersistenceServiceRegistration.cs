@@ -12,6 +12,7 @@ public static class AddPersistenceServiceRegistration
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ISuppllierRepository, SupplierRepository>();
 
         services.AddDbContext<StockpilotDbContext>(options =>
            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
