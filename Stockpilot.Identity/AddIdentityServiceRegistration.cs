@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Stockpilot.Identity.Models;
 using System.Text;
@@ -15,7 +16,20 @@ public static class AddIdentityServiceRegistration
 {
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
-
+        services.AddOptions<JwtSettings>()
+            .Bind(configuration.GetSection("JwtSettings"))
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.SecretKey),
+                "JWT configuration setting 'JwtSettings:SecretKey' is required and cannot be empty or whitespace.")
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.SecretKey) &&
+                Encoding.UTF8.GetByteCount(settings.SecretKey) >= 32,
+                "JWT configuration setting 'JwtSettings:SecretKey' must be at least 32 bytes when encoded.")
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.Issuer),
+                "JWT configuration setting 'JwtSettings:Issuer' is required and cannot be empty or whitespace.")
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.Audience),
+                "JWT configuration setting 'JwtSettings:Audience' is required and cannot be empty or whitespace.")
+            .Validate(settings => settings.ExpirationInDays > 0,
+                "JWT configuration setting 'JwtSettings:ExpirationInDays' must be greater than zero.")
+            .ValidateOnStart();
 
         services.AddDbContext<StockpilotIdentityDbContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("IdentityConnection")));
 
@@ -23,8 +37,6 @@ public static class AddIdentityServiceRegistration
                .AddEntityFrameworkStores<StockpilotIdentityDbContext>()
                .AddDefaultTokenProviders();
 
-
-        services.AddScoped<IPasswordHasher<ApplicationUser>, PasswordHasher<ApplicationUser>>();
 
         services.AddScoped<AuthenticationService>();
 
@@ -42,9 +54,6 @@ public static class AddIdentityServiceRegistration
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration.GetSection("JwtSettings:Issuer").Value,
-                ValidAudience = configuration.GetSection("JwtSettings:Audience").Value,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetSection("JwtSettings:SecretKey").Value!)),
             };
             options.Events = new JwtBearerEvents()
             {
@@ -72,6 +81,15 @@ public static class AddIdentityServiceRegistration
                 }
             };
         });
+
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .PostConfigure<IOptions<JwtSettings>>((options, jwtSettings) =>
+            {
+                options.TokenValidationParameters.ValidIssuer = jwtSettings.Value.Issuer;
+                options.TokenValidationParameters.ValidAudience = jwtSettings.Value.Audience;
+                options.TokenValidationParameters.IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.SecretKey));
+            });
 
         services.AddAuthorization();
 

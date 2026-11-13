@@ -141,6 +141,12 @@ namespace Stockpilot.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -304,8 +310,9 @@ namespace Stockpilot.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<Guid>("PerformedByUser")
-                        .HasColumnType("uuid");
+                    b.Property<string>("PerformedByUser")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("PerformedByUserId")
                         .HasColumnType("uuid");

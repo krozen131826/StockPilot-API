@@ -63,6 +63,9 @@ public class ProductConfiguration
         builder.HasIndex(x => x.SKU)
             .IsUnique();
 
+        builder.Property(x => x.Version)
+            .IsRowVersion();
+
         builder.HasIndex(x => x.Name);
 
         builder.HasIndex(x => new

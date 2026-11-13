@@ -26,16 +26,16 @@ internal sealed class AddSupplierCommandValidator : AbstractValidator<AddSupplie
             .When(x => !string.IsNullOrEmpty(x.request.Email));
 
         RuleFor(x => x.request.Phone)
-            .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.")
-            .When(x => !string.IsNullOrEmpty(x.request.Phone));
+            .NotEmpty().WithMessage("Phone number is required.")
+            .NotNull().WithMessage("Phone number cannot be null.");
     }
 }
 
 internal sealed class AddSupplierCommandHandler : IRequestHandler<AddSupplierCommand, Guid>
 {
-    private readonly ISuppllierRepository _supplierRepository;
+    private readonly ISupplierRepository _supplierRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public AddSupplierCommandHandler(ISuppllierRepository supplierRepository, IUnitOfWork unitOfWork)
+    public AddSupplierCommandHandler(ISupplierRepository supplierRepository, IUnitOfWork unitOfWork)
     {
         _supplierRepository = supplierRepository;
         _unitOfWork = unitOfWork;

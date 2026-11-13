@@ -1,27 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Stockpilot.Application.UnitTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 		<PackageReference Include="MediatR" Version="14.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.13" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Stockpilot.Domain\Stockpilot.Domain.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Stockpilot.Domain\Stockpilot.Domain.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\StockMovement\" />
-    <Folder Include="Features\PurchaseOrderItem\" />
-    <Folder Include="Features\PurchaseOrder\" />
-    <Folder Include="Features\Product\" />
-    <Folder Include="Features\Supplier\Queries\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Features\PurchaseOrderItem\Commands\" />
+	</ItemGroup>
 
 </Project>

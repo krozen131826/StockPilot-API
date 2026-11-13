@@ -12,7 +12,11 @@ public static class AddPersistenceServiceRegistration
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ISuppllierRepository, SupplierRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IStockMovementRepository, StockMovementRepository>();
+        services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
+        services.AddScoped<IPurchaseOrderItemRepository, PurchaseOrderItemRepository>();
 
         services.AddDbContext<StockpilotDbContext>(options =>
            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));

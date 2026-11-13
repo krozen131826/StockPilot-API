@@ -52,14 +52,14 @@ namespace Stockpilot.Identity.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            ConcurrencyStamp = "a7c4a3ec-efa2-477d-bd26-45ea75c3d2de",
+                            ConcurrencyStamp = "da27136d-79ae-4f63-937e-07c1fd40d3cf",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            ConcurrencyStamp = "26588f45-ac90-4320-95b8-659c6ed7a53d",
+                            ConcurrencyStamp = "99c5460d-88dc-4c2f-ad07-59d2f54e05f2",
                             Name = "Staff",
                             NormalizedName = "STAFF"
                         });
@@ -156,13 +156,6 @@ namespace Stockpilot.Identity.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            RoleId = new Guid("22222222-2222-2222-2222-222222222222")
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -254,25 +247,6 @@ namespace Stockpilot.Identity.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "1761422b-4701-47bc-9693-f8fdf95cd03b",
-                            Email = "rozenkimrobert@gmail.com",
-                            EmailConfirmed = true,
-                            FullName = "",
-                            IsActive = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ROZENKIMROBERT@GMAIL.COM",
-                            NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJRxW4McPwYtmyK1N+HBvMGfk/8qZ7+j98ATr8ElO0G/wMoDXBh1LsxDHP/Tz41wAQ==",
-                            PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false,
-                            UserName = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

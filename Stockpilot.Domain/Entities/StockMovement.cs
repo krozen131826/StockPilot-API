@@ -9,20 +9,15 @@ namespace Stockpilot.Domain.Entities;
 public class StockMovement : AuditableEntity
 {
     public Guid Id { get; set; }
-
     public Guid ProductId { get; set; }
     public Product Product { get; set; } = null!;
-
     public Guid PerformedByUserId { get; set; }
-    public Guid PerformedByUser { get; set; }
-
+    public string PerformedByUser { get; set; } = string.Empty;
     public Guid? PurchaseOrderId { get; set; }
     public PurchaseOrder? PurchaseOrder { get; set; }
-
     public StockMovementType MovementType { get; set; }
     public int QuantityChange { get; set; }
     public int QuantityBefore { get; set; }
     public int QuantityAfter { get; set; }
-
     public string Reason { get; set; } = string.Empty;
 }

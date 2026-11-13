@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stockpilot.Application.Features.Category.Commands;
@@ -7,7 +8,8 @@ using Stockpilot.Application.Features.Category.Queries;
 
 namespace Stockpilot.Api.Controllers;
 
-[Route("api/[controller]")]
+[Authorize]
+[Route("api/category")]
 [ApiController]
 public class CategoryController : ControllerBase
 {
@@ -19,6 +21,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost("add")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -26,7 +29,7 @@ public class CategoryController : ControllerBase
     public async Task<IActionResult> CreateCategory([FromBody] AddCategoryDto request)
     {
 
-        var categoryId = await _mediator.Send(new CategoryCommand(request));
+        var categoryId = await _mediator.Send(new AddCategoryCommand(request));
 
         return Ok(categoryId);
     }
@@ -34,6 +37,7 @@ public class CategoryController : ControllerBase
     
 
     [HttpPut("update/{id}")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -46,6 +50,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("delete/{id}")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -58,11 +63,12 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Roles = "Administrator,Staff")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IReadOnlyList<GetCategoryListDto>>> CategoryList()
+    public async Task<ActionResult<IReadOnlyList<CategoryListDto>>> CategoryList()
     {
        var results = await _mediator.Send(new GetCategoryListQuery());
 
@@ -71,6 +77,7 @@ public class CategoryController : ControllerBase
 
 
     [HttpGet("getById/{id}")]
+    [Authorize(Roles = "Administrator,Staff")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]

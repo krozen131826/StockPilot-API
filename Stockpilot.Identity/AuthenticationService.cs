@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Stockpilot.Application.Exceptions;
 using Stockpilot.Identity.Models;
@@ -13,17 +13,13 @@ public class AuthenticationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly IConfiguration _configuration;
-    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
-    private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+    private readonly JwtSettings _jwtSettings;
 
-    public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole<Guid>> roleManager, IPasswordHasher<ApplicationUser> passwordHasher)
+    public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IOptions<JwtSettings> jwtSettings)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _configuration = configuration;
-        _roleManager = roleManager;
-        _passwordHasher = passwordHasher;
+        _jwtSettings = jwtSettings.Value;
     }
 
     public async Task<AuthServiceResponseModel> Authentication(AuthServiceRequestModel request)
@@ -45,24 +41,30 @@ public class AuthenticationService
 
         if (user is null)
         {
-            throw new NotFoundExceptions($"{request.UserKey}");
+            throw new UnAuthorizedExceptions("Invalid username or password.");
+        }
+
+        if (!user.IsActive)
+        {
+            throw new UnAuthorizedExceptions("Invalid username or password.");
         }
 
         var isEmailConfirm = await _userManager.IsEmailConfirmedAsync(user);
 
         if (!isEmailConfirm)
         {
-            throw new UnAuthorizedExceptions("Please Confirm Your Email To Login");
+            throw new UnAuthorizedExceptions("Invalid username or password.");
         }
 
         var result = await _signInManager.PasswordSignInAsync(user.UserName!, request.Password, false, lockoutOnFailure: false);
 
         if (!result.Succeeded)
         {
-            throw new UnAuthorizedExceptions($"Credentials for '{request.UserKey} aren't valid'.");
+            throw new UnAuthorizedExceptions("Invalid username or password.");
         }
 
-        var token = GenerateToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var token = GenerateToken(user, roles);
 
         return new AuthServiceResponseModel
         {
@@ -73,25 +75,32 @@ public class AuthenticationService
         };
     }
 
-    private TokenModel GenerateToken(ApplicationUser user)
+    private TokenModel GenerateToken(ApplicationUser user, IEnumerable<string> roles)
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
 
-        var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtSettings:SecretKey").Value!);
+        var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+        var utcNow = DateTime.UtcNow;
+        var expiration = utcNow.AddDays(_jwtSettings.ExpirationInDays);
 
-        var tokenDescriptor = new SecurityTokenDescriptor()
+        var claims = new List<Claim>
         {
-            Subject = new ClaimsIdentity(new[] {
-                new Claim("Id", user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
-                new Claim(JwtRegisteredClaimNames.Aud, _configuration.GetSection("JwtSettings:Audience").Value!),
-                new Claim(JwtRegisteredClaimNames.Iss, _configuration.GetSection("JwtSettings:Issuer").Value!),
-            }),
+            new("Id", user.Id.ToString()),
+            new("FullName", user.FullName),
+            new(JwtRegisteredClaimNames.Sub, user.Email!),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(utcNow).ToUnixTimeSeconds().ToString())
+        };
 
-            Expires = DateTime.Now.AddDays(7),
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Issuer = _jwtSettings.Issuer,
+            Audience = _jwtSettings.Audience,
+            Expires = expiration,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
 
@@ -99,12 +108,10 @@ public class AuthenticationService
 
         var jwtToken = jwtTokenHandler.WriteToken(token);
 
-        DateTimeOffset dateTimeOffset = new DateTimeOffset(tokenDescriptor.Expires.GetValueOrDefault());
-
         return new TokenModel
         {
             Token = jwtToken,
-            TokenExpiration = dateTimeOffset.ToUnixTimeSeconds()
+            TokenExpiration = new DateTimeOffset(expiration).ToUnixTimeSeconds()
         };
     }
 

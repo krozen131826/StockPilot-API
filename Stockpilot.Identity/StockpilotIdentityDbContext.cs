@@ -25,27 +25,6 @@ internal class StockpilotIdentityDbContext(DbContextOptions<StockpilotIdentityDb
         // Always configure the built-in Identity entities first.
         base.OnModelCreating(modelBuilder);
 
-        var passwordHasher = new PasswordHasher<ApplicationUser>();
-
-        var adminUser = new ApplicationUser
-        {
-            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-            UserName = "Admin",
-            NormalizedUserName = "ADMIN",
-            Email = "rozenkimrobert@gmail.com",
-            NormalizedEmail = "ROZENKIMROBERT@GMAIL.COM",
-            EmailConfirmed = true,
-            LockoutEnabled = false,
-
-            SecurityStamp = "f9b2a1d4-3c8e-4f7a-9b62-8d4e6c1a5b90",
-            ConcurrencyStamp = "e8c1b5a3-7d4f-4b2a-9c6e-1f3a8d5b7c20"
-        };
-
-        adminUser.PasswordHash =
-            passwordHasher.HashPassword(adminUser, "ReplaceWithAStrongPassword");
-
-        modelBuilder.Entity<ApplicationUser>().HasData(adminUser);
-
         var roles = new List<IdentityRole<Guid>>
     {
         new()
@@ -63,17 +42,6 @@ internal class StockpilotIdentityDbContext(DbContextOptions<StockpilotIdentityDb
     };
 
         modelBuilder.Entity<IdentityRole<Guid>>().HasData(roles);
-
-        var userRoles = new List<IdentityUserRole<Guid>>
-    {
-        new()
-        {
-            UserId = adminUser.Id,
-            RoleId = roles[0].Id
-        }
-    };
-
-        modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(userRoles);
 
         var roleClaims = new List<IdentityRoleClaim<Guid>>
     {

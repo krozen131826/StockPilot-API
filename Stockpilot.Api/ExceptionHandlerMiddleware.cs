@@ -44,6 +44,13 @@ public class ExceptionHandlerMiddleware : IExceptionHandler
                 Type = "Unauthorized",
                 Status = StatusCodes.Status401Unauthorized,
             },
+            ConflictExceptions ce => new ProblemDetails
+            {
+                Title = "ConflictException",
+                Detail = ce.Message,
+                Type = "Conflict",
+                Status = StatusCodes.Status409Conflict,
+            },
             _ => new ProblemDetails
             {
                 Title = "ServerError",

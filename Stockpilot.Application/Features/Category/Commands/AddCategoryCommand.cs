@@ -6,12 +6,12 @@ using Stockpilot.Application.Features.Category.Dtos;
 
 namespace Stockpilot.Application.Features.Category.Commands;
 
-public sealed record CategoryCommand(AddCategoryDto request) : IRequest<Guid>;
+public sealed record AddCategoryCommand(AddCategoryDto request) : IRequest<Guid>;
 
 
-internal sealed class  CategoryCommandValidator : AbstractValidator<CategoryCommand>
+internal sealed class AddCategoryCommandValidator : AbstractValidator<AddCategoryCommand>
 {
-    public CategoryCommandValidator()
+    public AddCategoryCommandValidator()
     {
         RuleFor(x => x.request.Name)
             .NotEmpty().WithMessage("Category name is required.")
@@ -22,19 +22,19 @@ internal sealed class  CategoryCommandValidator : AbstractValidator<CategoryComm
     }
 }
 
-internal sealed class CategoryCommandHandler : IRequestHandler<CategoryCommand, Guid>
+internal sealed class CreateCategoryCommandHandler : IRequestHandler<AddCategoryCommand, Guid>
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public CategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+    public CreateCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
     {
         _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Guid> Handle(CategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
 
-        var validator = new CategoryCommandValidator();
+        var validator = new AddCategoryCommandValidator();
 
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 

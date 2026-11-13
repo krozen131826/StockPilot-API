@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Stockpilot.Persistence.Repository;
 
-public class SupplierRepository : ISuppllierRepository
+public class SupplierRepository : ISupplierRepository
 {
     private readonly StockpilotDbContext _context;
 
@@ -29,11 +29,11 @@ public class SupplierRepository : ISuppllierRepository
 
     public async Task<IReadOnlyList<Supplier>> GetSupplierListAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Suppliers.ToListAsync(cancellationToken);
+        return await _context.Suppliers.AsNoTracking().ToListAsync(cancellationToken);
     }
 
     public Task<bool> IsSupplierExistsAsync(string name, CancellationToken cancellationToken = default)
     {
-        return _context.Suppliers.AnyAsync(x => x.Name.ToLower() == name.ToLower(), cancellationToken);
+        return _context.Suppliers.AsNoTracking().AnyAsync(x => x.Name.ToLower() == name.ToLower(), cancellationToken);
     }
 }

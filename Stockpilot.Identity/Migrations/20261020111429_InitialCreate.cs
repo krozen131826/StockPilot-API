@@ -171,19 +171,9 @@ namespace Stockpilot.Identity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FullName", "IsActive", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("11111111-1111-1111-1111-111111111111"), 0, "1761422b-4701-47bc-9693-f8fdf95cd03b", "rozenkimrobert@gmail.com", true, "", true, false, null, "ROZENKIMROBERT@GMAIL.COM", "ADMIN", "AQAAAAIAAYagAAAAEJRxW4McPwYtmyK1N+HBvMGfk/8qZ7+j98ATr8ElO0G/wMoDXBh1LsxDHP/Tz41wAQ==", null, false, null, false, "Admin" });
-
-            migrationBuilder.InsertData(
                 table: "AspNetRoleClaims",
                 columns: new[] { "Id", "ClaimType", "ClaimValue", "RoleId" },
                 values: new object[] { 1, "Permission", "SuperAdmin", new Guid("22222222-2222-2222-2222-222222222222") });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUserRoles",
-                columns: new[] { "RoleId", "UserId" },
-                values: new object[] { new Guid("22222222-2222-2222-2222-222222222222"), new Guid("11111111-1111-1111-1111-111111111111") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

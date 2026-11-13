@@ -23,6 +23,8 @@ public class Product : AuditableEntity
     public int ReorderLevel { get; set; }
     public bool IsActive { get; set; } = true;
 
+    public uint Version { get; private set; }
+
     public ICollection<PurchaseOrderItem> PurchaseOrderItems
     { get; set; } = new List<PurchaseOrderItem>();
 

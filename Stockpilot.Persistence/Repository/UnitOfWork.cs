@@ -1,4 +1,6 @@
-﻿using Stockpilot.Application.Contracts;
+﻿using Microsoft.EntityFrameworkCore;
+using Stockpilot.Application.Contracts;
+using Stockpilot.Application.Exceptions;
 
 namespace Stockpilot.Persistence.Repository;
 
@@ -12,9 +14,17 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
     }
 
-    public Task<int> SaveChangesAsync(
+    public async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConflictExceptions(
+                "The product's stock was updated by another user. Reload the latest stock before retrying.");
+        }
     }
 }

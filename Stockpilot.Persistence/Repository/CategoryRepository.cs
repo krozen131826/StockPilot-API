@@ -18,6 +18,7 @@ public class CategoryRepository : ICategoryRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Categories
+            .AsNoTracking()
             .AnyAsync(
                 x => x.Name.ToLower() == name.ToLower(),
                 cancellationToken);
@@ -40,6 +41,8 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<IReadOnlyList<Category>> GetCategoryListAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Categories.ToListAsync(cancellationToken);
+        return await _context.Categories
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 }

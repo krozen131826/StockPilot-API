@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Stockpilot.Application.Contracts;
 
-public interface ISuppllierRepository
+public interface ISupplierRepository
 {
     Task<bool> IsSupplierExistsAsync(string name, CancellationToken cancellationToken = default);
 
