@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using MediatR;
@@ -91,6 +91,80 @@ public class PurchaseOrderControllerTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         mediatorDouble.ReceivedRequestTypes.Should().Contain(typeof(Stockpilot.Application.Features.PurchaseOrder.Queries.GetPurchaseOrderByIdQuery));
+    }
+
+    [Fact]
+    public async Task AdministratorCanSubmitPurchaseOrder()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        var mediator = TestMediatorDouble.Create(out var mediatorDouble);
+        using var client = CreateAuthenticatedClient(factory, mediator, "Administrator");
+
+        var response = await client.PostAsync($"/api/purchaseOrder/submit/{Guid.NewGuid()}", null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        mediatorDouble.ReceivedRequestTypes.Should().Contain(typeof(Stockpilot.Application.Features.PurchaseOrder.Commands.SubmitPurchaseOrderCommand));
+    }
+
+    [Fact]
+    public async Task StaffCanSubmitPurchaseOrder()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        var mediator = TestMediatorDouble.Create(out var mediatorDouble);
+        using var client = CreateAuthenticatedClient(factory, mediator, "Staff");
+
+        var response = await client.PostAsync($"/api/purchaseOrder/submit/{Guid.NewGuid()}", null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        mediatorDouble.ReceivedRequestTypes.Should().Contain(typeof(Stockpilot.Application.Features.PurchaseOrder.Commands.SubmitPurchaseOrderCommand));
+    }
+
+    [Fact]
+    public async Task AdministratorCanReceivePurchaseOrder()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        var mediator = TestMediatorDouble.Create(out var mediatorDouble);
+        using var client = CreateAuthenticatedClient(factory, mediator, "Administrator");
+
+        var response = await client.PostAsync($"/api/purchaseOrder/receive/{Guid.NewGuid()}", null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        mediatorDouble.ReceivedRequestTypes.Should().Contain(typeof(Stockpilot.Application.Features.PurchaseOrder.Commands.ReceivePurchaseOrderCommand));
+    }
+
+    [Fact]
+    public async Task StaffCanReceivePurchaseOrder()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        var mediator = TestMediatorDouble.Create(out var mediatorDouble);
+        using var client = CreateAuthenticatedClient(factory, mediator, "Staff");
+
+        var response = await client.PostAsync($"/api/purchaseOrder/receive/{Guid.NewGuid()}", null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        mediatorDouble.ReceivedRequestTypes.Should().Contain(typeof(Stockpilot.Application.Features.PurchaseOrder.Commands.ReceivePurchaseOrderCommand));
+    }
+
+    [Fact]
+    public async Task UnauthenticatedSubmitPurchaseOrder_ShouldReturnUnauthorized()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/purchaseOrder/submit/{Guid.NewGuid()}", null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task UnauthenticatedReceivePurchaseOrder_ShouldReturnUnauthorized()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/purchaseOrder/receive/{Guid.NewGuid()}", null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]

@@ -16,14 +16,13 @@ internal sealed class AddPurchaseOrderCommandValidator : AbstractValidator<AddPu
     public AddPurchaseOrderCommandValidator()
     {
         RuleFor(x => x.request.SupplierId).NotEmpty().WithMessage("SupplierId is required.");
-        RuleFor(x => x.request.Supplier).NotEmpty().WithMessage("Supplier is required.");
         RuleFor(x => x.request.OrderNumber).NotEmpty().WithMessage("OrderNumber is required.");
         RuleFor(x => x.request.Items).NotNull().NotEmpty().WithMessage("A purchase order must contain at least one item.");
         RuleForEach(x => x.request.Items).ChildRules(item =>
         {
-            item.RuleFor(x => x.Product)
+            item.RuleFor(x => x.ProductId)
                 .NotEmpty()
-                .WithMessage("Product is required.");
+                .WithMessage("ProductId is required.");
 
             item.RuleFor(x => x.QuantityOrdered)
                 .GreaterThan(0)

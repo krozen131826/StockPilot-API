@@ -36,7 +36,7 @@ internal sealed class GetPurchaseOrderListQueryHandler : IRequestHandler<GetPurc
 
         var purchaseOrders = await _purchaseOrderRepository.GetPurchaseOrderListAsync(cancellationToken);
 
-        if (!purchaseOrders.Any() || purchaseOrders is null)
+        if (purchaseOrders is null || !purchaseOrders.Any())
         {
             throw new NotFoundExceptions("No purchase orders found.");
         }

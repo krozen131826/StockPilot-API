@@ -37,10 +37,12 @@ internal sealed class AddProductCommandValidator : AbstractValidator<AddProductC
 internal sealed class AddProductCommandHandler : IRequestHandler<AddProductCommand, Guid>
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public AddProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+    public AddProductCommandHandler(IProductRepository productRepository, ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
     }
     public async Task<Guid> Handle(AddProductCommand request, CancellationToken cancellationToken)
@@ -54,14 +56,19 @@ internal sealed class AddProductCommandHandler : IRequestHandler<AddProductComma
             throw new ValidationExceptions(validationResult);
         }
 
+        var category = await _categoryRepository.GetCategoryByIdAsync(request.request.CategoryId, cancellationToken);
+
+        if (category == null)
+        {
+            throw new NotFoundExceptions($"Category with ID '{request.request.CategoryId}' not found.");
+        }
+
         if (await _productRepository.ExistsByNameAsync(request.request.Name, cancellationToken))
         {
             throw new BadRequestExceptions($"A product with the name '{request.request.Name}' already exists.");
         }
 
-        var product = new Domain.Entities.Product
-        {
-            CategoryId = request.request.CategoryId,
+        var product = new Domain.Entities.Product {  
             SKU = request.request.SKU,
             Name = request.request.Name,
             Description = request.request.Description,

@@ -35,10 +35,12 @@ internal sealed class UpdateProductCommandValidator : AbstractValidator<UpdatePr
 internal sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, Unit>
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public UpdateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+    public UpdateProductCommandHandler(IProductRepository productRepository, ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
     }
     public async Task<Unit> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -56,12 +58,12 @@ internal sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProduc
             throw new NotFoundExceptions($"Product with ID '{request.id}' not found.");
         }
 
-        product.CategoryId = request.request.CategoryId;
-        product.SKU = request.request.SKU;
-        product.Name = request.request.Name;
-        product.Description = request.request.Description;
-        product.CostPrice = request.request.CostPrice;
-        product.SellingPrice = request.request.SellingPrice;
+        var category = await _categoryRepository.GetCategoryByIdAsync(request.request.CategoryId, cancellationToken);
+
+        if (category == null)
+        {
+            throw new NotFoundExceptions($"Category with ID '{request.request.CategoryId}' not found.");
+        }
         product.ReorderLevel = request.request.ReorderLevel;
         product.IsActive = request.request.IsActive;
 

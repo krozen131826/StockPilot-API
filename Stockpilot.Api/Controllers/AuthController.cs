@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stockpilot.Identity;
@@ -26,4 +27,5 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
+
 }
