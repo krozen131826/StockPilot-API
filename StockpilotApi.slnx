@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+  </Folder>
   <Folder Name="/src/">
     <File Path="database-desig.md" />
     <File Path="purchase-order-workflow.md" />
@@ -9,8 +12,8 @@
     <Project Path="Stockpilot.Persistence/Stockpilot.Persistence.csproj" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="Stockpilot.Api.IntegrationTests/Stockpilot.Api.IntegrationTests.csproj" />
     <Project Path="Stockpilot.Application.UnitTests/Stockpilot.Application.UnitTests.csproj" Id="92765fcc-c380-4795-993d-605c4b4c2b7e" />
     <Project Path="Stockpilot.Identity.UnitTests/Stockpilot.Identity.UnitTests.csproj" />
-    <Project Path="Stockpilot.Api.IntegrationTests/Stockpilot.Api.IntegrationTests.csproj" />
   </Folder>
 </Solution>

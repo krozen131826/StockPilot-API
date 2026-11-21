@@ -87,4 +87,28 @@ public class PurchaseOrderController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPost("submit/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SubmitPurchaseOrder(Guid id)
+    {
+        await _mediator.Send(new SubmitPurchaseOrderCommand(id));
+
+        return Ok();
+    }
+
+    [HttpPost("receive/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ReceivePurchaseOrder(Guid id)
+    {
+        await _mediator.Send(new ReceivePurchaseOrderCommand(id));
+
+        return Ok();
+    }
 }

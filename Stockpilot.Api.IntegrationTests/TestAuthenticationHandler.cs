@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -26,7 +26,7 @@ public sealed class TestAuthenticationHandler : AuthenticationHandler<Authentica
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, "integration-test-user"),
+            new Claim("Id", "00000000-0000-0000-0000-000000000001"),
             new Claim(ClaimTypes.Name, "Integration Test User"),
             new Claim(ClaimTypes.Role, role)
         };

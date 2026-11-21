@@ -18,7 +18,6 @@ internal sealed class AddPurchaseOrderCommandValidator : AbstractValidator<AddPu
         RuleFor(x => x.request.SupplierId).NotEmpty().WithMessage("SupplierId is required.");
         RuleFor(x => x.request.Supplier).NotEmpty().WithMessage("Supplier is required.");
         RuleFor(x => x.request.OrderNumber).NotEmpty().WithMessage("OrderNumber is required.");
-        RuleFor(x => x.request.Status).IsInEnum().WithMessage("Status must be a valid enum value.");
         RuleFor(x => x.request.Items).NotNull().NotEmpty().WithMessage("A purchase order must contain at least one item.");
         RuleForEach(x => x.request.Items).ChildRules(item =>
         {
@@ -33,10 +32,7 @@ internal sealed class AddPurchaseOrderCommandValidator : AbstractValidator<AddPu
             item.RuleFor(x => x.UnitCost)
                 .GreaterThanOrEqualTo(0)
                 .WithMessage("Unit cost cannot be negative.");
-
-            item.RuleFor(x => x.QuantityReceived)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("QuantityReceived cannot be negative.");
+      
         });
     }
 }
@@ -46,11 +42,20 @@ internal sealed class AddPurchaseOrderCommandHandler : IRequestHandler<AddPurcha
 {
     private readonly IPurchaseOrderRepository _purchaseOrderRepository;
     private readonly IPurchaseOrderItemRepository _purchaseOrderItemRepository;
+    private readonly ISupplierRepository _supplierRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public AddPurchaseOrderCommandHandler(IPurchaseOrderRepository purchaseOrderRepository, IPurchaseOrderItemRepository purchaseOrderItemRepository, IUnitOfWork unitOfWork)
+    public AddPurchaseOrderCommandHandler(
+        IPurchaseOrderRepository purchaseOrderRepository,
+        IPurchaseOrderItemRepository purchaseOrderItemRepository,
+        ISupplierRepository supplierRepository,
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork)
     {
         _purchaseOrderRepository = purchaseOrderRepository;
         _purchaseOrderItemRepository = purchaseOrderItemRepository;
+        _supplierRepository = supplierRepository;
+        _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
     public async Task<Unit> Handle(AddPurchaseOrderCommand request, CancellationToken cancellationToken)
@@ -64,6 +69,24 @@ internal sealed class AddPurchaseOrderCommandHandler : IRequestHandler<AddPurcha
             throw new ValidationExceptions(validationResult);
         }
 
+        if (await _purchaseOrderRepository.IsPurchaseOrderExistsAsync(request.request.OrderNumber, cancellationToken))
+        {
+            throw new BadRequestExceptions($"A purchase order with the order number '{request.request.OrderNumber}' already exists.");
+        }
+
+        if (await _supplierRepository.GetSupplierByIdAsync(request.request.SupplierId, cancellationToken) is null)
+        {
+            throw new NotFoundExceptions($"Supplier with ID '{request.request.SupplierId}' not found.");
+        }
+
+        foreach (var item in request.request.Items)
+        {
+            if (await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken) is null)
+            {
+                throw new NotFoundExceptions($"Product with ID '{item.ProductId}' not found.");
+            }
+        }
+
         var purchaseOrderId = Guid.NewGuid();
 
         var purchaseOrder = new Domain.Entities.PurchaseOrder
@@ -71,9 +94,9 @@ internal sealed class AddPurchaseOrderCommandHandler : IRequestHandler<AddPurcha
             Id = purchaseOrderId,
             SupplierId = request.request.SupplierId,
             OrderNumber = request.request.OrderNumber,
-            Status = request.request.Status,
-            SubmittedAt = request.request.SubmittedAt,
-            ReceivedAt = request.request.ReceivedAt,
+            Status = PurchaseOrderStatus.Draft,
+            SubmittedAt = null,
+            ReceivedAt = null,
             Notes = request.request.Notes,
         };
 
@@ -83,7 +106,7 @@ internal sealed class AddPurchaseOrderCommandHandler : IRequestHandler<AddPurcha
             PurchaseOrderId = purchaseOrderId,
             ProductId = item.ProductId,
             QuantityOrdered = item.QuantityOrdered,
-            QuantityReceived = item.QuantityReceived,
+            QuantityReceived = 0,
             UnitCost = item.UnitCost
         }).ToList();
 
