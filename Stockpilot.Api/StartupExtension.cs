@@ -60,11 +60,9 @@ public static class StartupExtensions
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
-
             
         }
-
+        app.MapOpenApi();
         app.MapScalarApiReference();
 
         // Register custom exception middleware early in the pipeline
