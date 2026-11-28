@@ -62,8 +62,10 @@ public static class StartupExtensions
         {
             app.MapOpenApi();
 
-            app.MapScalarApiReference();
+            
         }
+
+        app.MapScalarApiReference();
 
         // Register custom exception middleware early in the pipeline
         app.UseExceptionHandler();
