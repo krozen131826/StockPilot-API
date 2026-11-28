@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Scalar.AspNetCore;
 using Stockpilot.Application;
@@ -38,6 +39,14 @@ public static class StartupExtensions
         builder.Services.AddProblemDetails();
         builder.Services.AddControllers();
 
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor |
+                ForwardedHeaders.XForwardedProto;
+        });
+
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("Open", builder =>
@@ -56,7 +65,6 @@ public static class StartupExtensions
 
 
 
-
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -67,6 +75,8 @@ public static class StartupExtensions
 
         // Register custom exception middleware early in the pipeline
         app.UseExceptionHandler();
+
+        app.UseForwardedHeaders();
 
         app.UseHttpsRedirection();
 
